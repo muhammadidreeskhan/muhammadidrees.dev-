@@ -1,0 +1,6 @@
+Contact: mailto:contactmuhammadidrees@gmail.com
+Expires: 2025-12-31T23:59:59.000Z
+Encryption: https://muhammadidrees.dev/pgp-key.txt
+Preferred-Languages: en
+Canonical: https://muhammadidrees.dev/.well-known/security.txt
+Policy: https://muhammadidrees.dev/security-policy
