@@ -9,8 +9,16 @@ const navItems = [
   { name: "About", href: "#about" },
   { name: "Portfolio", href: "#portfolio" },
   { name: "Skills", href: "#skills" },
-  { name: "Blog", href: "#blog" },
+  { name: "Blog", href: "/blog" },
   { name: "Contact", href: "#contact" },
+];
+
+const serviceLinks = [
+  { name: "Web Development", href: "/services/web-development" },
+  { name: "Mobile Apps", href: "/services/mobile-apps" },
+  { name: "UI/UX Design", href: "/services/ui-ux-design" },
+  { name: "API Development", href: "/services/api-development" },
+  { name: "Consulting", href: "/services/consulting" },
 ];
 
 export function Navigation() {
@@ -126,6 +134,26 @@ export function Navigation() {
               )}
             </motion.button>
           ))}
+          {/* Services Dropdown */}
+          <div className="relative group">
+            <button className="relative text-sm font-medium transition-all duration-300 hover:scale-105 text-gray-600 dark:text-gray-300 hover:text-blue-400 px-2 py-1" data-cursor-hover>
+              Services
+            </button>
+            <div className="absolute left-0 mt-2 w-56 bg-white dark:bg-gray-900 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 opacity-0 group-hover:opacity-100 pointer-events-none group-hover:pointer-events-auto transition-opacity duration-200 z-50">
+              <ul className="py-2">
+                {serviceLinks.map((service) => (
+                  <li key={service.name}>
+                    <a
+                      href={service.href}
+                      className="block px-6 py-3 text-gray-700 dark:text-gray-200 hover:bg-blue-50 dark:hover:bg-gray-800 rounded-xl transition-colors duration-200"
+                    >
+                      {service.name}
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </div>
         </div>
 
         <div className="flex items-center space-x-4">
@@ -225,6 +253,24 @@ export function Navigation() {
                   {item.name}
                 </motion.button>
               ))}
+              {/* Services Collapsible Section */}
+              <div className="pt-2">
+                <details>
+                  <summary className="cursor-pointer text-gray-600 dark:text-gray-300 px-4 py-3 rounded-xl hover:bg-white/10 transition-all duration-300 font-medium">Services</summary>
+                  <ul className="pl-4 mt-2 space-y-2">
+                    {serviceLinks.map((service) => (
+                      <li key={service.name}>
+                        <a
+                          href={service.href}
+                          className="block px-4 py-2 rounded-xl text-gray-700 dark:text-gray-200 hover:bg-blue-50 dark:hover:bg-gray-800 transition-colors duration-200"
+                        >
+                          {service.name}
+                        </a>
+                      </li>
+                    ))}
+                  </ul>
+                </details>
+              </div>
             </div>
           </motion.div>
         )}

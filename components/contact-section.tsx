@@ -20,6 +20,7 @@ import {
   Loader2,
 } from "lucide-react"
 import DOMPurify from "isomorphic-dompurify"
+import emailjs from "@emailjs/browser";
 
 // Enhanced validation schema with security measures
 const contactSchema = z.object({
@@ -127,6 +128,12 @@ const contactMethods = [
 let lastSubmissionTime = 0
 const RATE_LIMIT_MS = 60000 // 1 minute
 
+// EmailJS config (replace with your actual Service ID and Template ID)
+const EMAILJS_SERVICE_ID = "service_z1yq3fn";
+const EMAILJS_TEMPLATE_ID = "template_ezqoruq";
+const EMAILJS_PUBLIC_KEY = "ONzZ5qOgd0YVWL9X0";
+const EMAILJS_PRIVATE_KEY = "_8DtA2yBT_dTkXkvF1Z8d"; // Not used on client, but kept for reference
+
 export function ContactSection() {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [submitStatus, setSubmitStatus] = useState<"idle" | "success" | "error" | "rate-limited">("idle")
@@ -163,33 +170,27 @@ export function ContactSection() {
         message: DOMPurify.sanitize(data.message.trim()),
       }
 
-      // Additional validation
-      if (!sanitizedData.name || !sanitizedData.email || !sanitizedData.subject || !sanitizedData.message) {
-        throw new Error("Invalid input data")
+      // EmailJS integration only (no API call)
+      const templateParams = {
+        from_name: sanitizedData.name,
+        from_email: sanitizedData.email,
+        subject: sanitizedData.subject,
+        message: sanitizedData.message,
       }
 
-      // Simulate secure API call with proper error handling
-      const response = await fetch("/api/contact", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "X-Requested-With": "XMLHttpRequest",
-        },
-        body: JSON.stringify(sanitizedData),
-      })
+      const result = await emailjs.send(
+        EMAILJS_SERVICE_ID,
+        EMAILJS_TEMPLATE_ID,
+        templateParams,
+        EMAILJS_PUBLIC_KEY
+      )
 
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`)
-      }
-
-      const result = await response.json()
-
-      if (result.success) {
+      if (result.status === 200) {
         setSubmitStatus("success")
         reset()
         lastSubmissionTime = now
       } else {
-        throw new Error(result.message || "Submission failed")
+        throw new Error("EmailJS failed to send email")
       }
     } catch (error) {
       console.error("Form submission error:", error)
@@ -294,40 +295,35 @@ export function ContactSection() {
               whileInView={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 0.2 }}
               viewport={{ once: true }}
-              className="relative p-8 bg-white/80 dark:bg-gray-800/80 backdrop-blur-xl rounded-3xl shadow-2xl border border-white/20 dark:border-gray-700/20"
+              className="relative p-4 sm:p-6 md:p-8 bg-white/80 dark:bg-gray-800/80 backdrop-blur-xl rounded-3xl shadow-2xl border border-white/20 dark:border-gray-700/20 max-w-full w-full mb-6"
             >
               <div className="absolute inset-0 bg-gradient-to-br from-blue-500/5 to-purple-500/5 rounded-3xl" />
-              <div className="relative">
-                <div className="flex items-center space-x-4 mb-6">
-                  <div className="relative">
-                    <div className="w-16 h-16 bg-gradient-to-r from-blue-500 to-purple-500 rounded-2xl flex items-center justify-center">
-                      <span className="text-2xl font-bold text-white">MI</span>
-                    </div>
-                    <div className="absolute -top-1 -right-1 w-6 h-6 bg-green-500 rounded-full border-2 border-white dark:border-gray-800 flex items-center justify-center">
-                      <div className="w-2 h-2 bg-white rounded-full animate-pulse" />
-                    </div>
+              <div className="flex items-center space-x-4 mb-4 sm:mb-6">
+                <div className="relative">
+                  <div className="w-12 h-12 sm:w-16 sm:h-16 bg-gradient-to-r from-blue-500 to-purple-500 rounded-2xl flex items-center justify-center">
+                    <span className="text-lg sm:text-2xl font-bold text-white">MI</span>
                   </div>
-                  <div>
-                    <h3 className="text-xl font-bold text-gray-900 dark:text-white">Muhammad Idrees</h3>
-                    <p className="text-gray-600 dark:text-gray-300">Full Stack Developer</p>
+                  <div className="absolute -top-1 -right-1 w-4 h-4 sm:w-6 sm:h-6 bg-green-500 rounded-full border-2 border-white dark:border-gray-800 flex items-center justify-center">
+                    <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-white rounded-full animate-pulse" />
                   </div>
                 </div>
-
-                <p className="text-gray-600 dark:text-gray-300 font-lora text-lg leading-relaxed mb-6">
-                  I'm passionate about creating exceptional digital experiences that drive results. Let's collaborate to
-                  bring your ideas to life with cutting-edge technology and innovative solutions.
-                </p>
-
-                <div className="flex flex-wrap gap-2">
-                  {["React", "Next.js", "TypeScript", "Node.js"].map((tech) => (
-                    <span
-                      key={tech}
-                      className="px-3 py-1 bg-gradient-to-r from-blue-100 to-purple-100 dark:from-blue-900/30 dark:to-purple-900/30 text-blue-700 dark:text-blue-300 rounded-full text-sm font-medium"
-                    >
-                      {tech}
-                    </span>
-                  ))}
+                <div className="min-w-0">
+                  <h3 className="text-base sm:text-xl font-bold text-gray-900 dark:text-white truncate">Muhammad Idrees</h3>
+                  <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-300 truncate">Full Stack Developer</p>
                 </div>
+              </div>
+              <p className="text-gray-600 dark:text-gray-300 font-lora text-sm sm:text-lg leading-relaxed mb-4 sm:mb-6 break-words">
+                I'm passionate about creating exceptional digital experiences that drive results. Let's collaborate to bring your ideas to life with cutting-edge technology and innovative solutions.
+              </p>
+              <div className="flex flex-wrap gap-2">
+                {['React', 'Next.js', 'TypeScript', 'Node.js'].map((tech) => (
+                  <span
+                    key={tech}
+                    className="px-2 py-1 sm:px-3 sm:py-1 bg-gradient-to-r from-blue-100 to-purple-100 dark:from-blue-900/30 dark:to-purple-900/30 text-blue-700 dark:text-blue-300 rounded-full text-xs sm:text-sm font-medium"
+                  >
+                    {tech}
+                  </span>
+                ))}
               </div>
             </motion.div>
 
@@ -342,20 +338,20 @@ export function ContactSection() {
                   transition={{ duration: 0.6, delay: 0.4 + index * 0.1 }}
                   viewport={{ once: true }}
                   whileHover={{ scale: 1.02, x: 8 }}
-                  className="group flex items-center space-x-4 p-6 bg-white/80 dark:bg-gray-800/80 backdrop-blur-xl rounded-2xl shadow-lg border border-white/20 dark:border-gray-700/20 hover:shadow-2xl transition-all duration-300"
+                  className="group flex items-center space-x-3 sm:space-x-4 p-4 sm:p-6 bg-white/80 dark:bg-gray-800/80 backdrop-blur-xl rounded-2xl shadow-lg border border-white/20 dark:border-gray-700/20 hover:shadow-2xl transition-all duration-300 mb-4"
                 >
                   <div
-                    className={`p-4 ${method.bgColor} rounded-2xl group-hover:scale-110 transition-transform duration-300`}
+                    className={`p-3 sm:p-4 ${method.bgColor} rounded-2xl group-hover:scale-110 transition-transform duration-300`}
                   >
-                    <method.icon className={`w-6 h-6 ${method.color}`} aria-hidden="true" />
+                    <method.icon className={`w-5 h-5 sm:w-6 sm:h-6 ${method.color}`} aria-hidden="true" />
                   </div>
-                  <div className="flex-1">
-                    <div className="font-semibold text-gray-900 dark:text-white text-lg">{method.title}</div>
-                    <div className="text-gray-600 dark:text-gray-300 font-medium">{method.value}</div>
-                    <div className="text-sm text-gray-500 dark:text-gray-400">{method.description}</div>
+                  <div className="flex-1 min-w-0">
+                    <div className="font-semibold text-gray-900 dark:text-white text-sm sm:text-lg truncate">{method.title}</div>
+                    <div className="text-gray-600 dark:text-gray-300 font-medium text-xs sm:text-base truncate">{method.value}</div>
+                    <div className="text-xs sm:text-sm text-gray-500 dark:text-gray-400">{method.description}</div>
                   </div>
                   <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                    <Send className="w-5 h-5 text-gray-400" />
+                    <Send className="w-4 h-4 sm:w-5 sm:h-5 text-gray-400" />
                   </div>
                 </motion.a>
               ))}
