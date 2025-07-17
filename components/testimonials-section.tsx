@@ -118,7 +118,7 @@ export function TestimonialsSection() {
                 transition={{ duration: 0.5, ease: "easeInOut" }}
                 className="absolute inset-0 flex items-center justify-center"
               >
-                <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-xl p-8 md:p-12 rounded-3xl shadow-2xl max-w-4xl mx-auto text-center border border-white/20 dark:border-gray-700/20">
+                <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-xl p-4 sm:p-6 md:p-12 rounded-3xl shadow-2xl max-w-full sm:max-w-2xl md:max-w-4xl w-full mx-auto text-center border border-white/20 dark:border-gray-700/20">
                   {/* Client Image */}
                   <div className="flex justify-center mb-8">
                     <div className="relative">
@@ -126,9 +126,9 @@ export function TestimonialsSection() {
                       <Image
                         src={testimonials[currentIndex].avatar || "/placeholder.svg"}
                         alt={testimonials[currentIndex].name}
-                        width={120}
-                        height={120}
-                        className="relative w-24 h-24 md:w-30 md:h-30 rounded-full object-cover border-4 border-white dark:border-gray-700 shadow-xl"
+                        width={96}
+                        height={96}
+                        className="relative w-20 h-20 sm:w-24 sm:h-24 md:w-28 md:h-28 rounded-full object-cover border-4 border-white dark:border-gray-700 shadow-xl"
                       />
                     </div>
                   </div>
@@ -148,16 +148,16 @@ export function TestimonialsSection() {
                   </div>
 
                   {/* Quote */}
-                  <blockquote className="text-xl md:text-2xl font-lora text-gray-700 dark:text-gray-300 mb-8 leading-relaxed italic">
+                  <blockquote className="text-base sm:text-lg md:text-2xl font-lora text-gray-700 dark:text-gray-300 mb-8 leading-relaxed italic">
                     &quot;{testimonials[currentIndex].content}&quot;
                   </blockquote>
 
                   {/* Author Info */}
                   <div className="space-y-2">
-                    <div className="font-bold font-poppins text-gray-900 dark:text-white text-xl">
+                    <div className="font-bold font-poppins text-gray-900 dark:text-white text-base sm:text-lg md:text-xl">
                       {testimonials[currentIndex].name}
                     </div>
-                    <div className="text-gray-600 dark:text-gray-400 text-lg">{testimonials[currentIndex].role}</div>
+                    <div className="text-gray-600 dark:text-gray-400 text-sm sm:text-base md:text-lg">{testimonials[currentIndex].role}</div>
                     <div className="flex items-center justify-center space-x-4 text-sm">
                       <span className="text-blue-600 dark:text-blue-400 font-medium bg-blue-100 dark:bg-blue-900/30 px-3 py-1 rounded-full">
                         {testimonials[currentIndex].company}

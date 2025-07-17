@@ -300,6 +300,26 @@ export default function RootLayout({
             `,
           }}
         />
+        {/* Web Vitals Reporting (for performance monitoring) */}
+        <Script
+          id="web-vitals"
+          strategy="afterInteractive"
+          dangerouslySetInnerHTML={{
+            __html: `
+              import('web-vitals').then(({ getCLS, getFID, getLCP, getFCP, getTTFB }) => {
+                function sendToConsole(metric) {
+                  console.log('[Web Vitals]', metric.name, metric.value, metric);
+                }
+                getCLS(sendToConsole);
+                getFID(sendToConsole);
+                getLCP(sendToConsole);
+                getFCP(sendToConsole);
+                getTTFB(sendToConsole);
+              });
+            `,
+          }}
+        />
+        {/* TODO: Add custom 404 and 500 pages for better UX. See /404.tsx and /500.tsx */}
       </body>
     </html>
   )

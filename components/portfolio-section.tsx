@@ -222,17 +222,22 @@ const projectsJsonLd = {
   })),
 }
 
-export function PortfolioSection() {
+export function PortfolioSection({ showAll = false }: { showAll?: boolean }) {
   const [selectedProject, setSelectedProject] = useState<(typeof projects)[0] | null>(null)
   const [filter, setFilter] = useState("All")
 
   const categories = ["All", "Featured", "Enterprise", "Healthcare", "AI", "Maps"]
 
-  const filteredProjects = projects.filter((project) => {
+  let filteredProjects = projects.filter((project) => {
     if (filter === "All") return true
     if (filter === "Featured") return project.featured
     return project.tags.some((tag) => tag.toLowerCase().includes(filter.toLowerCase()))
   })
+
+  // On landing page, show only 3 featured projects
+  if (!showAll) {
+    filteredProjects = filteredProjects.filter((p) => p.featured).slice(0, 3)
+  }
 
   return (
     <section id="portfolio" className="py-20 px-6 relative overflow-hidden" aria-labelledby="portfolio-heading">
@@ -376,6 +381,18 @@ export function PortfolioSection() {
             ))}
           </AnimatePresence>
         </div>
+
+        {/* See All Projects button for landing page */}
+        {!showAll && (
+          <div className="flex justify-center mt-8">
+            <a
+              href="/portfolio"
+              className="inline-block px-8 py-4 bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-2xl font-semibold shadow-lg hover:shadow-xl transition-all duration-300"
+            >
+              See All Projects
+            </a>
+          </div>
+        )}
 
         {/* Project Modal */}
         <AnimatePresence>

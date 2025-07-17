@@ -1,5 +1,5 @@
 import { type NextRequest, NextResponse } from "next/server"
-import { z } from "zod"
+import { z, ZodError } from "zod"
 import rateLimit from "@/lib/rate-limit"
 
 // Rate limiter - 5 requests per minute per IP
@@ -8,7 +8,7 @@ const limiter = rateLimit({
   uniqueTokenPerInterval: 500, // Max 500 unique IPs per interval
 })
 
-// Validation schema
+// Add honeypot field to schema
 const contactSchema = z.object({
   name: z
     .string()
@@ -18,12 +18,28 @@ const contactSchema = z.object({
   email: z.string().email("Invalid email format").max(100, "Email too long"),
   subject: z.string().min(5, "Subject too short").max(100, "Subject too long"),
   message: z.string().min(10, "Message too short").max(1000, "Message too long"),
+  website: z.string().optional(), // honeypot
 })
 
 export async function POST(request: NextRequest) {
+  // Add generic delay to slow down bots
+  await new Promise((res) => setTimeout(res, 500));
   try {
+    // Block suspicious user agents
+    const userAgent = request.headers.get("user-agent") || "";
+    if (/curl|python|bot|spider|crawler|scrapy|wget|httpclient|libwww/i.test(userAgent)) {
+      return NextResponse.json({ success: false, message: "Suspicious user agent" }, { status: 403 });
+    }
+
+    // Block requests with invalid referrer
+    const referrer = request.headers.get("referer") || request.headers.get("referrer") || "";
+    if (referrer && !referrer.includes("muhammadidrees.dev")) {
+      return NextResponse.json({ success: false, message: "Invalid referrer" }, { status: 403 });
+    }
+
     // Rate limiting
-    const ip = request.ip ?? "127.0.0.1"
+    // NextRequest may not have 'ip', so fallback to x-forwarded-for or 127.0.0.1
+    const ip = request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "127.0.0.1";
     const { success } = await limiter.check(5, ip) // 5 requests per minute
 
     if (!success) {
@@ -39,6 +55,11 @@ export async function POST(request: NextRequest) {
     // Parse and validate request body
     const body = await request.json()
     const validatedData = contactSchema.parse(body)
+
+    // Honeypot check
+    if (validatedData.website && validatedData.website.trim() !== "") {
+      return NextResponse.json({ success: false, message: "Bot detected" }, { status: 400 })
+    }
 
     // Additional security checks
     const suspiciousPatterns = [
@@ -80,13 +101,15 @@ export async function POST(request: NextRequest) {
         status: 200,
         headers: {
           "Cache-Control": "no-store, no-cache, must-revalidate",
+          "X-Content-Type-Options": "nosniff",
+          "X-Frame-Options": "DENY",
         },
       },
     )
   } catch (error) {
     console.error("Contact form error:", error)
 
-    if (error instanceof z.ZodError) {
+    if (error instanceof ZodError) {
       return NextResponse.json(
         {
           success: false,
