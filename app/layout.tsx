@@ -231,6 +231,7 @@ export default function RootLayout({
         <meta name="theme-color" content="#1e1e1e" />
         <meta name="color-scheme" content="dark light" />
         <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+        <meta name="google-site-verification" content="IJd5Z2gHMeswh8Ze1i-ZiU0HCxGvUMHXBhOM9UmBhu0" />
 
         {/* Preconnect to external domains */}
         <link rel="preconnect" href="https://fonts.googleapis.com" />
